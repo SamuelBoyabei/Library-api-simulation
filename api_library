@@ -1,0 +1,76 @@
+import asyncio
+from typing import List, Dict
+
+
+class LibraryAPI:
+    def __init__(self):
+       
+        self.books: List[Dict] = [
+            {"id": 1, "title": "Introduction to Programming", "available": True},
+            {"id": 2, "title": "Computer Networks", "available": True},
+            {"id": 3, "title": "Data Structures and Algorithms", "available": True},
+            {"id": 4, "title": "Software Engineering", "available": True},
+            {"id": 5, "title": "Artificial Intelligence", "available": True}
+        ]
+
+    # Endpoint 1: GET /books
+    async def get_books(self) -> List[Dict]:
+        print("\n[API] Fetching all books...")
+        await asyncio.sleep(0.5)  # simulate delay (async)
+        return self.books
+
+    # Endpoint 2: POST /borrow/{book_id}
+    async def borrow_book(self, book_id: int) -> Dict[str, str]:
+        print(f"[API] Borrowing book ID {book_id}...")
+        await asyncio.sleep(0.5)  # simulate multiple users access
+
+        for book in self.books:
+            if book["id"] == book_id:
+                if book["available"]:
+                    book["available"] = False
+                    return {"message": "Book borrowed successfully"}
+                else:
+                    return {"message": "Book is already borrowed"}
+
+        return {"message": "Book not found"}
+
+    # Endpoint 3: POST /return/{book_id}
+    async def return_book(self, book_id: int) -> Dict[str, str]:
+        print(f"[API] Returning book ID {book_id}...")
+        await asyncio.sleep(0.5)
+
+        for book in self.books:
+            if book["id"] == book_id:
+                if not book["available"]:
+                    book["available"] = True
+                    return {"message": "Book returned successfully"}
+                else:
+                    return {"message": "Book was not borrowed"}
+
+        return {"message": "Book not found"}
+
+
+
+# SIMULATING MULTIPLE USERS (IMPORTANT PART)
+
+async def main():
+    api = LibraryAPI()
+
+    print("\n===== SIMULATING MULTIPLE USERS =====")
+
+    results = await asyncio.gather(
+        api.get_books(),          # User 1
+        api.borrow_book(2),       # User 2
+        api.borrow_book(3),       # User 3
+        api.return_book(2)        # User 4
+    )
+
+    for result in results:
+        print(result)
+
+
+
+# RUN PROGRAM
+
+if __name__ == "__main__":
+    asyncio.run(main())
